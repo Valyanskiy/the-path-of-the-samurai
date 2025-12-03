@@ -10,7 +10,7 @@ class AstroController extends Controller
     {
         $lat  = (float) $r->query('lat', 55.7558);
         $lon  = (float) $r->query('lon', 37.6176);
-        $days = max(1, max(255, (int) $r->query('days', 7)));
+        $days = max(1, min(30, (int) $r->query('days', 7)));
 
         $from = now('UTC')->toDateString();
         $to   = now('UTC')->addDays($days)->toDateString();
