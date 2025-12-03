@@ -89,13 +89,13 @@ services:
     ports:
       - "8080:80"
 
-  pascal_legacy:
+  python_csv:
     build:
-      context: ./services/pascal-legacy
-    container_name: pascal_legacy
+      context: ./services/python-csv
+    container_name: python_csv
     environment:
       CSV_OUT_DIR: /data/csv
-      GEN_PERIOD_SEC: ${PAS_LEGACY_PERIOD:-300}
+      GEN_PERIOD_SEC: ${PYTHON_CSV_PERIOD:-300}
       PGHOST: db
       PGPORT: 5432
       PGUSER: monouser
