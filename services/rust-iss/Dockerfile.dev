@@ -1,0 +1,16 @@
+FROM rust:1.85-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config libssl-dev ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY Cargo.toml ./
+RUN mkdir -p src && echo 'fn main() {}' > src/main.rs \
+    && cargo generate-lockfile \
+    && cargo update home@0.5.12 --precise 0.5.11 \
+    && cargo fetch \
+    && rm -rf src
+
+CMD ["cargo", "run"]
