@@ -14,7 +14,7 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
   <div class="container">
     <a class="navbar-brand" href="/dashboard">Dashboard</a>
-    <a class="nav-link" href="/iss" onclick="location.href='/dashboard';return false;">ISS</a>
+    <a class="nav-link" href="/iss" onclick="location.href='/dashboard'">ISS</a>
     <a class="nav-link" href="/osdr">OSDR</a>
   </div>
 </nav>
