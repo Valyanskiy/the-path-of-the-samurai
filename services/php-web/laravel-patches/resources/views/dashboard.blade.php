@@ -6,11 +6,11 @@
   <div class="row g-3 mb-2">
     <div class="col-6 col-md-3"><div class="border rounded p-2 text-center">
       <div class="small text-muted">Скорость МКС</div>
-      <div class="fs-4">{{ isset(($iss['payload'] ?? [])['velocity']) ? number_format($iss['payload']['velocity'],0,'',' ') : '—' }}</div>
+      <div class="fs-4" id="issSpeed">{{ isset(($iss['payload'] ?? [])['velocity']) ? number_format($iss['payload']['velocity'],0,'',' ') : '—' }}</div>
     </div></div>
     <div class="col-6 col-md-3"><div class="border rounded p-2 text-center">
       <div class="small text-muted">Высота МКС</div>
-      <div class="fs-4">{{ isset(($iss['payload'] ?? [])['altitude']) ? number_format($iss['payload']['altitude'],0,'',' ') : '—' }}</div>
+      <div class="fs-4" id="issAlt">{{ isset(($iss['payload'] ?? [])['altitude']) ? number_format($iss['payload']['altitude'],0,'',' ') : '—' }}</div>
     </div></div>
   </div>
 
@@ -121,24 +121,43 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function loadTrend() {
       try {
-        const r = await fetch('/api/iss/trend?limit=240');
-        const js = await r.json();
-        const pts = Array.isArray(js.points) ? js.points.map(p => [p.lat, p.lon]) : [];
-        if (pts.length) {
+        // Получаем текущие данные
+        const lastRes = await fetch('/api/iss/last');
+        const last = await lastRes.json();
+        const p = last.payload || {};
+        
+        // Обновляем карту
+        if (p.latitude && p.longitude) {
+          const newPos = [p.latitude, p.longitude];
+          const pts = trail.getLatLngs();
+          pts.push(newPos);
+          if (pts.length > 240) pts.shift();
           trail.setLatLngs(pts);
-          marker.setLatLng(pts[pts.length-1]);
+          marker.setLatLng(newPos);
         }
-        const t = (js.points||[]).map(p => new Date(p.at).toLocaleTimeString());
-        speedChart.data.labels = t;
-        speedChart.data.datasets[0].data = (js.points||[]).map(p => p.velocity);
+        
+        // Обновляем карточки
+        document.getElementById('issSpeed').textContent = p.velocity ? Math.round(p.velocity).toLocaleString() : '—';
+        document.getElementById('issAlt').textContent = p.altitude ? Math.round(p.altitude).toLocaleString() : '—';
+        
+        // Обновляем графики
+        const now = new Date().toLocaleTimeString();
+        speedChart.data.labels.push(now);
+        speedChart.data.datasets[0].data.push(p.velocity || 0);
+        altChart.data.labels.push(now);
+        altChart.data.datasets[0].data.push(p.altitude || 0);
+        if (speedChart.data.labels.length > 20) {
+          speedChart.data.labels.shift();
+          speedChart.data.datasets[0].data.shift();
+          altChart.data.labels.shift();
+          altChart.data.datasets[0].data.shift();
+        }
         speedChart.update();
-        altChart.data.labels = t;
-        altChart.data.datasets[0].data = (js.points||[]).map(p => p.altitude);
         altChart.update();
-      } catch(e) {}
+      } catch(e) { console.error(e); }
     }
     loadTrend();
-    setInterval(loadTrend, 15000);
+    setInterval(loadTrend, {{ $issEverySeconds ?? 120 }} * 1000);
   }
 
   // ====== JWST ГАЛЕРЕЯ ======
@@ -310,8 +329,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     @php
       try {
         // «плохо»: запрос из Blade, без кэша, без репозитория
-        $___b = DB::selectOne("SELECT content FROM cms_blocks WHERE slug='dashboard_experiment' AND is_active = TRUE LIMIT 1");
-        echo $___b ? $___b->content : '<div class="text-muted">блок не найден</div>';
+        $___b = DB::selectOne("SELECT body FROM cms_blocks WHERE slug='welcome' AND is_active = TRUE LIMIT 1");
+        echo $___b ? $___b->body : '<div class="text-muted">блок не найден</div>';
       } catch (\Throwable $e) {
         echo '<div class="text-danger">ошибка БД: '.e($e->getMessage()).'</div>';
       }
@@ -326,8 +345,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     @php
       try {
         // «плохо»: запрос из Blade, без кэша, без репозитория
-        $___b = DB::selectOne("SELECT content FROM cms_blocks WHERE slug='dashboard_experiment' AND is_active = TRUE LIMIT 1");
-        echo $___b ? $___b->content : '<div class="text-muted">блок не найден</div>';
+        $___b = DB::selectOne("SELECT body FROM cms_blocks WHERE slug='unsafe' AND is_active = TRUE LIMIT 1");
+        echo $___b ? $___b->body : '<div class="text-muted">блок не найден</div>';
       } catch (\Throwable $e) {
         echo '<div class="text-danger">ошибка БД: '.e($e->getMessage()).'</div>';
       }
@@ -351,19 +370,3 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-
-{{-- ===== CMS-блок из БД (нарочно сырая вставка) ===== --}}
-<div class="card mt-3">
-  <div class="card-header fw-semibold">CMS — блок из БД</div>
-  <div class="card-body">
-    @php
-      try {
-        // «плохо»: запрос из Blade, без кэша, без репозитория
-        $___b = DB::selectOne("SELECT content FROM cms_blocks WHERE slug='dashboard_experiment' AND is_active = TRUE LIMIT 1");
-        echo $___b ? $___b->content : '<div class="text-muted">блок не найден</div>';
-      } catch (\Throwable $e) {
-        echo '<div class="text-danger">ошибка БД: '.e($e->getMessage()).'</div>';
-      }
-    @endphp
-  </div>
-</div>

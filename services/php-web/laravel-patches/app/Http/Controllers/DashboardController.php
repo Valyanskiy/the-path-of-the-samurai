@@ -21,10 +21,12 @@ class DashboardController extends Controller
         $b     = $this->base();
         $iss   = $this->getJson($b.'/last');
         $trend = []; // фронт сам заберёт /api/iss/trend (через nginx прокси)
+        $issEverySeconds = (int)(getenv('ISS_EVERY_SECONDS') ?: 120);
 
         return view('dashboard', [
             'iss' => $iss,
             'trend' => $trend,
+            'issEverySeconds' => $issEverySeconds,
             'jw_gallery' => [], // не нужно сервером
             'jw_observation_raw' => [],
             'jw_observation_summary' => [],
