@@ -13,8 +13,20 @@ class ProxyController extends Controller
     public function last()  { return $this->pipe('/last'); }
 
     public function trend() {
-        $q = request()->getQueryString();
-        return $this->pipe('/iss/trend' . ($q ? '?' . $q : ''));
+        // Безопасная передача параметров: только разрешённые ключи
+        $allowed = ['from', 'to', 'limit'];
+        $params = [];
+        foreach ($allowed as $key) {
+            $val = request()->query($key);
+            if ($val !== null) {
+                // Валидация: только числа и даты
+                if (preg_match('/^[\d\-:TZ]+$/', (string)$val)) {
+                    $params[$key] = $val;
+                }
+            }
+        }
+        $qs = $params ? '?' . http_build_query($params) : '';
+        return $this->pipe('/iss/trend' . $qs);
     }
 
     private function pipe(string $path)

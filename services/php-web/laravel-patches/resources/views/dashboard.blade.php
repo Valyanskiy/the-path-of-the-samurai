@@ -322,35 +322,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     </script>
 
 
-{{-- ===== Данный блок ===== --}}
+{{-- CMS-блок welcome (данные из контроллера, санитизированы) --}}
 <div class="card mt-3">
   <div class="card-header fw-semibold">CMS</div>
   <div class="card-body">
-    @php
-      try {
-        // «плохо»: запрос из Blade, без кэша, без репозитория
-        $___b = DB::selectOne("SELECT body FROM cms_blocks WHERE slug='welcome' AND is_active = TRUE LIMIT 1");
-        echo $___b ? $___b->body : '<div class="text-muted">блок не найден</div>';
-      } catch (\Throwable $e) {
-        echo '<div class="text-danger">ошибка БД: '.e($e->getMessage()).'</div>';
-      }
-    @endphp
+    @if($cmsWelcome)
+      {!! $cmsWelcome !!}
+    @else
+      <div class="text-muted">блок не найден</div>
+    @endif
   </div>
 </div>
 
-{{-- ===== CMS-блок из БД (нарочно сырая вставка) ===== --}}
+{{-- CMS-блок unsafe (данные из контроллера, санитизированы от XSS) --}}
 <div class="card mt-3">
   <div class="card-header fw-semibold">CMS — блок из БД</div>
   <div class="card-body">
-    @php
-      try {
-        // «плохо»: запрос из Blade, без кэша, без репозитория
-        $___b = DB::selectOne("SELECT body FROM cms_blocks WHERE slug='unsafe' AND is_active = TRUE LIMIT 1");
-        echo $___b ? $___b->body : '<div class="text-muted">блок не найден</div>';
-      } catch (\Throwable $e) {
-        echo '<div class="text-danger">ошибка БД: '.e($e->getMessage()).'</div>';
-      }
-    @endphp
+    @if($cmsUnsafe)
+      {!! $cmsUnsafe !!}
+    @else
+      <div class="text-muted">блок не найден</div>
+    @endif
   </div>
 </div>
 

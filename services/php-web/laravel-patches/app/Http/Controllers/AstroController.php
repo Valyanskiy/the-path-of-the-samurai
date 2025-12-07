@@ -8,8 +8,9 @@ class AstroController extends Controller
 {
     public function events(Request $r)
     {
-        $lat  = (float) $r->query('lat', 55.7558);
-        $lon  = (float) $r->query('lon', 37.6176);
+        // Строгая валидация параметров
+        $lat  = max(-90.0, min(90.0, (float) $r->query('lat', 55.7558)));
+        $lon  = max(-180.0, min(180.0, (float) $r->query('lon', 37.6176)));
         $days = max(1, min(30, (int) $r->query('days', 7)));
 
         $from = now('UTC')->toDateString();

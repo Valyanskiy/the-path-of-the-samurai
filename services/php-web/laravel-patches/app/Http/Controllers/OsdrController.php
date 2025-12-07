@@ -8,7 +8,8 @@ class OsdrController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = $request->query('limit', '20'); // учебная нестрогая валидация
+        // Строгая валидация: только целое число от 1 до 100
+        $limit = max(1, min(100, (int) $request->query('limit', 20)));
         $base  = getenv('RUST_BASE') ?: 'http://rust_iss:3000';
 
         $json  = @file_get_contents($base.'/osdr/list?limit='.$limit);
