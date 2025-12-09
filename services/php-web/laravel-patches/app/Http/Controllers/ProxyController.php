@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Response;
+use App\Validation\ProxyRequestValidator;
 
 class ProxyController extends Controller
 {
@@ -10,23 +11,11 @@ class ProxyController extends Controller
         return getenv('RUST_BASE') ?: 'http://rust_iss:3000';
     }
 
-    public function last()  { return $this->pipe('/last'); }
+    public function last() { return $this->pipe('/last'); }
 
     public function trend() {
-        // Безопасная передача параметров: только разрешённые ключи
-        $allowed = ['from', 'to', 'limit'];
-        $params = [];
-        foreach ($allowed as $key) {
-            $val = request()->query($key);
-            if ($val !== null) {
-                // Валидация: только числа и даты
-                if (preg_match('/^[\d\-:TZ]+$/', (string)$val)) {
-                    $params[$key] = $val;
-                }
-            }
-        }
-        $qs = $params ? '?' . http_build_query($params) : '';
-        return $this->pipe('/iss/trend' . $qs);
+        $validated = new ProxyRequestValidator(request());
+        return $this->pipe('/iss/trend' . $validated->toQueryString());
     }
 
     private function pipe(string $path)
@@ -46,7 +35,7 @@ class ProxyController extends Controller
             }
             return new Response($body, 200, ['Content-Type' => 'application/json']);
         } catch (\Throwable $e) {
-            return new Response('{"error":"upstream"}', 200, ['Content-Type' => 'application/json']);
+            return new Response('{"ok":false,"error":{"code":"UPSTREAM_ERROR","message":"Service unavailable"}}', 200, ['Content-Type' => 'application/json']);
         }
     }
 }

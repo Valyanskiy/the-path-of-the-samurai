@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Validation\AstroRequestValidator;
 
 class AstroController extends Controller
 {
@@ -13,20 +14,15 @@ class AstroController extends Controller
 
     public function events(Request $r)
     {
-        // Строгая валидация параметров
-        $lat  = max(-90.0, min(90.0, (float) $r->query('lat', 55.7558)));
-        $lon  = max(-180.0, min(180.0, (float) $r->query('lon', 37.6176)));
-        $elevation = max(0, min(10000, (int) $r->query('elevation', 0)));
-        $days = max(1, min(30, (int) $r->query('days', 7)));
+        $validated = new AstroRequestValidator($r);
 
         $from = now('UTC')->toDateString();
-        $to   = now('UTC')->addDays($days)->toDateString();
-        $time = $r->query('time') ? $r->query('time') . ':00' : now('UTC')->format('H:i:s');
+        $to   = now('UTC')->addDays($validated->days)->toDateString();
 
         $appId  = getenv('ASTRO_APP_ID') ?: '';
         $secret = getenv('ASTRO_APP_SECRET') ?: '';
         if ($appId === '' || $secret === '') {
-            return response()->json(['error' => 'Missing ASTRO_APP_ID/ASTRO_APP_SECRET'], 500);
+            return response()->json(['ok' => false, 'error' => ['code' => 'CONFIG_ERROR', 'message' => 'Missing ASTRO credentials']], 500);
         }
 
         $auth = base64_encode($appId . ':' . $secret);
@@ -35,12 +31,12 @@ class AstroController extends Controller
 
         foreach ($bodies as $body) {
             $url = 'https://api.astronomyapi.com/api/v2/bodies/events/' . $body . '?' . http_build_query([
-                'latitude'  => $lat,
-                'longitude' => $lon,
+                'latitude'  => $validated->lat,
+                'longitude' => $validated->lon,
                 'from_date' => $from,
                 'to_date'   => $to,
-                'elevation' => $elevation,
-                'time'      => $time,
+                'elevation' => $validated->elevation,
+                'time'      => $validated->time,
             ]);
 
             $ch = curl_init($url);
@@ -55,11 +51,10 @@ class AstroController extends Controller
             ]);
             $raw  = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE) ?: 0;
-            $err  = curl_error($ch);
             curl_close($ch);
 
             if ($raw === false || $code >= 400) {
-                $results[$body] = ['error' => $err ?: ("HTTP " . $code), 'code' => $code];
+                $results[$body] = ['error' => true];
             } else {
                 $data = json_decode($raw, true);
                 $events = $data['data']['table']['rows'][0]['cells'] ?? [];
@@ -67,13 +62,6 @@ class AstroController extends Controller
                     $event['body'] = $body;
                     $event['name'] = ucfirst($body);
                     $event['date'] = $event['eventHighlights']['peak']['date'] ?? null;
-                    
-                    $extra = $event['extraInfo'] ?? [];
-                    $lines = [];
-                    foreach ($extra as $key => $val) {
-                        $lines[] = "$key: $val";
-                    }
-                    $event['note'] = implode("\n", $lines);
                 }
                 $results[$body] = $events;
             }
@@ -86,6 +74,6 @@ class AstroController extends Controller
             }
         }
 
-        return response()->json(['events' => $allEvents, 'count' => count($allEvents)]);
+        return response()->json(['ok' => true, 'events' => $allEvents, 'count' => count($allEvents)]);
     }
 }

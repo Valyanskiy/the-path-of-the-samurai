@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Export\ExportStrategy;
+use App\Export\CsvExportStrategy;
+use App\Export\ExcelExportStrategy;
 
 class TelemetryController extends Controller
 {
@@ -18,32 +20,27 @@ class TelemetryController extends Controller
         return view('telemetry', ['items' => $items]);
     }
 
-    public function exportCsv(): StreamedResponse
+    private function export(ExportStrategy $strategy): StreamedResponse
     {
-        return response()->streamDownload(function () {
+        return response()->streamDownload(function () use ($strategy) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'recorded_at', 'voltage', 'temp', 'source_file']);
-            DB::table('telemetry_legacy')->orderBy('id')->chunk(500, function ($rows) use ($out) {
-                foreach ($rows as $r) {
-                    fputcsv($out, [$r->id, $r->recorded_at, $r->voltage, $r->temp, $r->source_file]);
+            $strategy->writeHeader($out);
+            DB::table('telemetry_legacy')->orderBy('id')->chunk(500, function ($rows) use ($out, $strategy) {
+                foreach ($rows as $row) {
+                    $strategy->writeRow($out, $row);
                 }
             });
             fclose($out);
-        }, 'telemetry_legacy.csv', ['Content-Type' => 'text/csv']);
+        }, $strategy->getFilename(), ['Content-Type' => $strategy->getContentType()]);
+    }
+
+    public function exportCsv(): StreamedResponse
+    {
+        return $this->export(new CsvExportStrategy());
     }
 
     public function exportExcel(): StreamedResponse
     {
-        return response()->streamDownload(function () {
-            $out = fopen('php://output', 'w');
-            // TSV format opens in Excel
-            fwrite($out, "id\trecorded_at\tvoltage\ttemp\tsource_file\n");
-            DB::table('telemetry_legacy')->orderBy('id')->chunk(500, function ($rows) use ($out) {
-                foreach ($rows as $r) {
-                    fwrite($out, "{$r->id}\t{$r->recorded_at}\t{$r->voltage}\t{$r->temp}\t{$r->source_file}\n");
-                }
-            });
-            fclose($out);
-        }, 'telemetry_legacy.xls', ['Content-Type' => 'application/vnd.ms-excel']);
+        return $this->export(new ExcelExportStrategy());
     }
 }

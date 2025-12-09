@@ -3,28 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Validation\OsdrRequestValidator;
 
 class OsdrController extends Controller
 {
     public function index(Request $request)
     {
-        // Строгая валидация: только целое число от 1 до 100
-        $limit = max(1, min(100, (int) $request->query('limit', 20)));
-        $base  = getenv('RUST_BASE') ?: 'http://rust_iss:3000';
+        $validated = new OsdrRequestValidator($request);
+        $base = getenv('RUST_BASE') ?: 'http://rust_iss:3000';
 
-        $json  = @file_get_contents($base.'/osdr/list?limit='.$limit);
+        $json  = @file_get_contents($base.'/osdr/list?limit='.$validated->limit);
         $data  = $json ? json_decode($json, true) : ['items' => []];
         $items = $data['items'] ?? [];
 
-        $items = $this->flattenOsdr($items); // ключевая строка
+        $items = $this->flattenOsdr($items);
 
         return view('osdr', [
             'items' => $items,
-            'src'   => $base.'/osdr/list?limit='.$limit,
+            'src'   => $base.'/osdr/list?limit='.$validated->limit,
         ]);
     }
 
-    /** Преобразует данные вида {"OSD-1": {...}, "OSD-2": {...}} в плоский список */
     private function flattenOsdr(array $items): array
     {
         $out = [];
@@ -36,7 +35,6 @@ class OsdrController extends Controller
                     $rest = $v['REST_URL'] ?? $v['rest_url'] ?? $v['rest'] ?? null;
                     $title = $v['title'] ?? $v['name'] ?? null;
                     if (!$title && is_string($rest)) {
-                        // запасной вариант: последний сегмент URL как подпись
                         $title = basename(rtrim($rest, '/'));
                     }
                     $out[] = [
@@ -51,7 +49,6 @@ class OsdrController extends Controller
                     ];
                 }
             } else {
-                // обычная строка — просто прокинем REST_URL если найдётся
                 $row['rest_url'] = is_array($raw) ? ($raw['REST_URL'] ?? $raw['rest_url'] ?? null) : null;
                 $out[] = $row;
             }
@@ -61,7 +58,6 @@ class OsdrController extends Controller
 
     private function looksOsdrDict(array $raw): bool
     {
-        // словарь ключей "OSD-xxx" ИЛИ значения содержат REST_URL
         foreach ($raw as $k => $v) {
             if (is_string($k) && str_starts_with($k, 'OSD-')) return true;
             if (is_array($v) && (isset($v['REST_URL']) || isset($v['rest_url']))) return true;

@@ -5,6 +5,7 @@ volumes:
   pgdata:
   appdata:
   csvdata:
+  redisdata:
 
 services:
   db:
@@ -26,6 +27,21 @@ services:
       - backend
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: iss_redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redisdata:/data
+    networks:
+      - backend
+    ports:
+      - "6379:6379"
 
   rust_iss:
     build:
@@ -72,11 +88,15 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       RUST_BASE: ${RUST_BASE}
       ISS_EVERY_SECONDS: ${ISS_EVERY_SECONDS}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       db:
         condition: service_healthy
       rust_iss:
         condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - backend
     volumes:

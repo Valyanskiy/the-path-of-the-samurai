@@ -8,6 +8,7 @@ use App\Http\Controllers\IssController;
 use App\Http\Controllers\OsdrController;
 use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\TelemetryController;
+use App\Http\Middleware\RateLimitMiddleware;
 
 Route::get('/', fn() => redirect('/dashboard'));
 
@@ -23,15 +24,18 @@ Route::get('/telemetry',  [TelemetryController::class,  'index']);
 Route::get('/telemetry/export/csv',   [TelemetryController::class, 'exportCsv']);
 Route::get('/telemetry/export/excel', [TelemetryController::class, 'exportExcel']);
 
-// Прокси к rust_iss
-Route::get('/api/iss/last',  [ProxyController::class, 'last']);
-Route::get('/api/iss/trend', [ProxyController::class, 'trend']);
+// API routes with Rate Limiting
+Route::middleware([RateLimitMiddleware::class])->group(function () {
+    // Прокси к rust_iss
+    Route::get('/api/iss/last',  [ProxyController::class, 'last']);
+    Route::get('/api/iss/trend', [ProxyController::class, 'trend']);
 
-// JWST галерея (JSON)
-Route::get('/api/jwst/feed', [DashboardController::class, 'jwstFeed']);
+    // JWST галерея (JSON)
+    Route::get('/api/jwst/feed', [DashboardController::class, 'jwstFeed']);
 
-// Astro API
-Route::get('/api/astro/events', [AstroController::class, 'events']);
+    // Astro API
+    Route::get('/api/astro/events', [AstroController::class, 'events']);
+});
 
 // CMS страницы
 Route::get('/page/{slug}', [CmsController::class, 'page'])
