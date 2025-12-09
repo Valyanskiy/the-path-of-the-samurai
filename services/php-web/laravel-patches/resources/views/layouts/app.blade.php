@@ -17,6 +17,7 @@
     <a class="nav-link" href="/iss">ISS</a>
     <a class="nav-link" href="/osdr">OSDR</a>
     <a class="nav-link" href="/astro">AstronomyAPI</a>
+    <a class="nav-link" href="/telemetry">Telemetry</a>
     <a class="nav-link" href="/cms">CMS</a>
   </div>
 </nav>
