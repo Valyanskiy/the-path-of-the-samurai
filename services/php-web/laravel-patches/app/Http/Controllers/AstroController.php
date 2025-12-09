@@ -16,11 +16,12 @@ class AstroController extends Controller
         // Строгая валидация параметров
         $lat  = max(-90.0, min(90.0, (float) $r->query('lat', 55.7558)));
         $lon  = max(-180.0, min(180.0, (float) $r->query('lon', 37.6176)));
+        $elevation = max(0, min(10000, (int) $r->query('elevation', 0)));
         $days = max(1, min(30, (int) $r->query('days', 7)));
 
         $from = now('UTC')->toDateString();
         $to   = now('UTC')->addDays($days)->toDateString();
-        $time = now('UTC')->format('H:i:s');
+        $time = $r->query('time') ? $r->query('time') . ':00' : now('UTC')->format('H:i:s');
 
         $appId  = getenv('ASTRO_APP_ID') ?: '';
         $secret = getenv('ASTRO_APP_SECRET') ?: '';
@@ -38,7 +39,7 @@ class AstroController extends Controller
                 'longitude' => $lon,
                 'from_date' => $from,
                 'to_date'   => $to,
-                'elevation' => 0,
+                'elevation' => $elevation,
                 'time'      => $time,
             ]);
 

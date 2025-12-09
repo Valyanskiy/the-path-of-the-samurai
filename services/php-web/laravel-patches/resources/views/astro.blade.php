@@ -16,7 +16,15 @@
           <input type="number" step="0.0001" class="form-control form-control-sm" name="lon" value="37.6176">
         </div>
         <div class="col-auto">
-          <label class="form-label mb-0">Дней</label>
+          <label class="form-label mb-0">Высота (м)</label>
+          <input type="number" class="form-control form-control-sm" name="elevation" value="150" style="width:90px">
+        </div>
+        <div class="col-auto">
+          <label class="form-label mb-0">Время</label>
+          <input type="time" class="form-control form-control-sm" name="time" value="12:00">
+        </div>
+        <div class="col-auto">
+          <label class="form-label mb-0">Дни</label>
           <input type="number" min="1" max="30" class="form-control form-control-sm" name="days" value="7" style="width:90px">
         </div>
         <div class="col-auto align-self-end">
@@ -102,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     load(Object.fromEntries(new FormData(form).entries()));
   });
 
-  load({lat: form.lat.value, lon: form.lon.value, days: form.days.value});
+  load({lat: form.lat.value, lon: form.lon.value, elevation: form.elevation.value, time: form.time.value, days: form.days.value});
 });
 </script>
 @endsection

@@ -13,6 +13,9 @@
     .fade-in-delay-1{animation-delay:.1s}
     .fade-in-delay-2{animation-delay:.2s}
     .fade-in-delay-3{animation-delay:.3s}
+    th[data-sort]::after{content:'⇅';opacity:.3;margin-left:.3em}
+    th[data-dir="asc"]::after{content:'↑';opacity:1}
+    th[data-dir="desc"]::after{content:'↓';opacity:1}
   </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
