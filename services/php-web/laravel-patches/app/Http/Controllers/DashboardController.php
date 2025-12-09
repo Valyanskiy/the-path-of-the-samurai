@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Support\JwstHelper;
+use App\Support\RedisCache;
 
 class DashboardController extends Controller
 {
+    private const CACHE_TTL = 300; // 5 minutes
+
     private function base(): string { return getenv('RUST_BASE') ?: 'http://rust_iss:3000'; }
 
     private function getJson(string $url, array $qs = []): array {
@@ -27,15 +30,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * /api/jwst/feed — серверный прокси/нормализатор JWST картинок.
-     * QS:
-     *  - source: jpg|suffix|program (default jpg)
-     *  - suffix: напр. _cal, _thumb, _crf
-     *  - program: ID программы (число)
-     *  - instrument: NIRCam|MIRI|NIRISS|NIRSpec|FGS
-     *  - page, perPage
-     */
     public function jwstFeed(Request $r)
     {
         $src   = $r->query('source', 'jpg');
@@ -45,9 +39,16 @@ class DashboardController extends Controller
         $page  = max(1, (int)$r->query('page', 1));
         $per   = max(1, min(60, (int)$r->query('perPage', 24)));
 
+        $cache = new RedisCache();
+        $cacheKey = 'api:jwst:' . md5(json_encode([$src, $sfx, $prog, $instF, $page, $per]));
+
+        $cached = $cache->get($cacheKey);
+        if ($cached !== null) {
+            return response()->json(json_decode($cached, true))->header('X-Cache', 'HIT');
+        }
+
         $jw = new JwstHelper();
 
-        // выбираем эндпоинт
         $path = 'all/type/jpg';
         if ($src === 'suffix' && $sfx !== '') $path = 'all/suffix/'.ltrim($sfx,'/');
         if ($src === 'program' && $prog !== '') $path = 'program/id/'.rawurlencode($prog);
@@ -59,7 +60,6 @@ class DashboardController extends Controller
         foreach ($list as $it) {
             if (!is_array($it)) continue;
 
-            // выбираем валидную картинку
             $url = null;
             $loc = $it['location'] ?? $it['url'] ?? null;
             $thumb = $it['thumbnail'] ?? null;
@@ -71,7 +71,6 @@ class DashboardController extends Controller
             }
             if (!$url) continue;
 
-            // фильтр по инструменту
             $instList = [];
             foreach (($it['details']['instruments'] ?? []) as $I) {
                 if (is_array($I) && !empty($I['instrument'])) $instList[] = strtoupper($I['instrument']);
@@ -95,10 +94,14 @@ class DashboardController extends Controller
             if (count($items) >= $per) break;
         }
 
-        return response()->json([
+        $response = [
             'source' => $path,
             'count'  => count($items),
             'items'  => $items,
-        ]);
+        ];
+
+        $cache->set($cacheKey, json_encode($response), self::CACHE_TTL);
+
+        return response()->json($response)->header('X-Cache', 'MISS');
     }
 }
