@@ -1,7 +1,5 @@
 # The path of the samurai
 
----
-
 # Внесённые изменения
 
 ## 1. Legacy-сервис: Pascal → Python
@@ -12,8 +10,6 @@
 - Создан `services/python-csv/csv_generator.py`
 - Логика идентична: генерация CSV с телеметрией, загрузка в PostgreSQL через `psql \copy`
 
----
-
 ## 2. AstroController: исправлена работа с API
 
 **Коммиты:** `631f623`, `e4a13db`, `cbd02e7`, `5078eb1`
@@ -23,16 +19,12 @@
 - Исправлены параметры API
 - Добавлена валидация через `AstroRequestValidator`
 
----
-
 ## 3. Docker-окружение для разработки
 
 **Коммит:** `7e1f94f`
 
 - Создан `docker-compose.dev.yml` с hot-reload
 - `entrypoint.dev.sh`: синхронизация патчей через inotifywait
-
----
 
 ## 4. Защита от XSS и SQL-инъекций
 
@@ -42,15 +34,11 @@
 - Параметризованные SQL-запросы
 - Валидация slug через regex
 
----
-
 ## 5. Секреты вынесены в .env
 
 **Коммит:** `0a73c6b`
 
 - Все API-ключи перенесены из docker-compose в `.env`
-
----
 
 ## 6. Разделение на страницы
 
@@ -58,8 +46,6 @@
 
 - Создана `/astro`, `/cms`, `/telemetry`
 - Dashboard упрощён
-
----
 
 ## 7. Анимации и UI
 
@@ -69,8 +55,6 @@
 - CSS fade-in анимации
 - Поиск и сортировка в таблицах
 - График Chart.js на странице Telemetry
-
----
 
 ## 8. Redis
 
@@ -91,8 +75,6 @@ redis:
   ports:
     - "6379:6379"
 ```
-
----
 
 ## 9. Redis кэширование
 
@@ -118,8 +100,6 @@ class RedisCache
 | JWST API | 5 мин (300 сек) | `api:jwst:{hash}` |
 
 Заголовок `X-Cache: HIT/MISS` показывает был ли ответ из кэша.
-
----
 
 ## 10. Rate-Limit Middleware
 
@@ -180,8 +160,6 @@ Route::middleware([RateLimitMiddleware::class])->group(function () {
     Route::get('/api/astro/events', ...);
 });
 ```
-
----
 
 ## 11. Классы валидации
 
@@ -250,8 +228,6 @@ class ProxyRequestValidator
 }
 ```
 
----
-
 ## Применённые паттерны проектирования
 
 ### 1. Strategy (Стратегия)
@@ -298,8 +274,6 @@ public function exportCsv(): StreamedResponse {
 }
 ```
 
----
-
 ### 2. Repository
 
 **Расположение:** `app/Repository/CmsRepository.php`
@@ -326,8 +300,6 @@ class CmsRepository
     }
 }
 ```
-
----
 
 ## Сводная таблица
 
