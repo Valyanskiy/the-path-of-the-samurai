@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container py-4">
-  <h3 class="mb-3">МКС данные</h3>
+  <h3 class="mb-3 fade-in">МКС данные</h3>
 
   <div class="row g-3">
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fade-in fade-in-delay-1">
         <div class="card-body">
           <h5 class="card-title">Последний снимок</h5>
           @if(!empty($last['payload']))
@@ -26,7 +26,7 @@
     </div>
 
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fade-in fade-in-delay-2">
         <div class="card-body">
           <h5 class="card-title">Тренд движения</h5>
           @if(!empty($trend))

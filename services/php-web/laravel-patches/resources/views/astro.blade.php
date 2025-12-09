@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container pb-5">
-  <h2 class="mb-4">Астрономические события (AstronomyAPI)</h2>
+  <h2 class="mb-4 fade-in">Астрономические события (AstronomyAPI)</h2>
 
-  <div class="card shadow-sm">
+  <div class="card shadow-sm fade-in fade-in-delay-1">
     <div class="card-body">
       <form id="astroForm" class="row g-2 align-items-center mb-3">
         <div class="col-auto">

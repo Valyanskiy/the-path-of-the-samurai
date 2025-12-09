@@ -6,7 +6,14 @@
   <title>Space Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <style>#map{height:340px}</style>
+  <style>
+    #map{height:340px}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .fade-in{animation:fadeIn .3s ease-out both}
+    .fade-in-delay-1{animation-delay:.1s}
+    .fade-in-delay-2{animation-delay:.2s}
+    .fade-in-delay-3{animation-delay:.3s}
+  </style>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>

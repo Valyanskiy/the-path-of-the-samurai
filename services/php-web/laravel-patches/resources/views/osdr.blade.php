@@ -2,10 +2,10 @@
 
 @section('content')
 <div class="container py-3">
-  <h3 class="mb-3">NASA OSDR</h3>
-  <div class="small text-muted mb-2">Источник {{ $src }}</div>
+  <h3 class="mb-3 fade-in">NASA OSDR</h3>
+  <div class="small text-muted mb-2 fade-in">Источник {{ $src }}</div>
 
-  <div class="table-responsive">
+  <div class="table-responsive fade-in fade-in-delay-1">
     <table class="table table-sm table-striped align-middle">
       <thead>
         <tr>
