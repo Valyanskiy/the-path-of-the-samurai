@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function load(q){
-    body.innerHTML = '<tr><td colspan="5" class="text-muted">Загрузка…</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="text-center py-4"><span class="spinner-border spinner-border-sm text-primary"></span> Загрузка…</td></tr>';
     const url = '/api/astro/events?' + new URLSearchParams(q).toString();
     try{
       const r  = await fetch(url);

@@ -6,11 +6,11 @@
   <div class="row g-3 mb-2">
     <div class="col-6 col-md-3"><div class="border rounded p-2 text-center">
       <div class="small text-muted">Скорость МКС</div>
-      <div class="fs-4" id="issSpeed">{{ isset(($iss['payload'] ?? [])['velocity']) ? number_format($iss['payload']['velocity'],0,'',' ') : '—' }}</div>
+      <div class="fs-4" id="issSpeed">{!! isset(($iss['payload'] ?? [])['velocity']) ? number_format($iss['payload']['velocity'],0,'',' ') : '<span class="placeholder col-4"></span>' !!}</div>
     </div></div>
     <div class="col-6 col-md-3"><div class="border rounded p-2 text-center">
       <div class="small text-muted">Высота МКС</div>
-      <div class="fs-4" id="issAlt">{{ isset(($iss['payload'] ?? [])['altitude']) ? number_format($iss['payload']['altitude'],0,'',' ') : '—' }}</div>
+      <div class="fs-4" id="issAlt">{!! isset(($iss['payload'] ?? [])['altitude']) ? number_format($iss['payload']['altitude'],0,'',' ') : '<span class="placeholder col-4"></span>' !!}</div>
     </div></div>
   </div>
 
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   srcSel.addEventListener('change', toggleInputs); toggleInputs();
 
   async function loadFeed(qs){
-    track.innerHTML = '<div class="p-3 text-muted">Загрузка…</div>';
+    track.innerHTML = '<div class="d-flex align-items-center justify-content-center gap-2 p-4 text-secondary"><span class="spinner-border spinner-border-sm"></span>Загрузка…</div>';
     info.textContent= '';
     try{
       const url = '/api/jwst/feed?'+new URLSearchParams(qs).toString();
