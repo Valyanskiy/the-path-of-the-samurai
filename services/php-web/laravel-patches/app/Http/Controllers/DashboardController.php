@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Support\JwstHelper;
 
 class DashboardController extends Controller
@@ -16,74 +15,15 @@ class DashboardController extends Controller
         return $raw ? (json_decode($raw, true) ?: []) : [];
     }
 
-    /**
-     * Получает CMS-блок по slug с защитой от XSS
-     */
-    private function getCmsBlock(string $slug): ?string
-    {
-        try {
-            $row = DB::selectOne(
-                "SELECT body FROM cms_blocks WHERE slug = ? AND is_active = TRUE LIMIT 1",
-                [$slug]
-            );
-            if (!$row) {
-                return null;
-            }
-            // Защита от XSS: удаляем script-теги и экранируем опасный контент
-            return $this->sanitizeHtml($row->body);
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Санитизация HTML: удаление опасных тегов и атрибутов
-     */
-    private function sanitizeHtml(?string $html): string
-    {
-        if ($html === null) {
-            return '';
-        }
-        // Удаляем script, style, iframe, object, embed теги
-        $html = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html);
-        $html = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $html);
-        $html = preg_replace('/<(iframe|object|embed|form)[^>]*>.*?<\/\1>/is', '', $html);
-        $html = preg_replace('/<(iframe|object|embed|form)[^>]*\/?>/is', '', $html);
-        // Удаляем on* атрибуты (onclick, onerror и т.д.)
-        $html = preg_replace('/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        $html = preg_replace('/\s+on\w+\s*=\s*[^\s>]+/i', '', $html);
-        // Удаляем javascript: в href/src
-        $html = preg_replace('/\b(href|src)\s*=\s*["\']?\s*javascript:[^"\'>\s]*/i', '', $html);
-        return $html;
-    }
-
     public function index()
     {
         $b     = $this->base();
         $iss   = $this->getJson($b.'/last');
-        $trend = [];
         $issEverySeconds = (int)(getenv('ISS_EVERY_SECONDS') ?: 120);
-
-        // Получаем CMS-блоки через контроллер с защитой от XSS
-        $cmsWelcome = $this->getCmsBlock('welcome');
-        $cmsUnsafe = $this->getCmsBlock('unsafe');
 
         return view('dashboard', [
             'iss' => $iss,
-            'trend' => $trend,
             'issEverySeconds' => $issEverySeconds,
-            'cmsWelcome' => $cmsWelcome,
-            'cmsUnsafe' => $cmsUnsafe,
-            'jw_gallery' => [],
-            'jw_observation_raw' => [],
-            'jw_observation_summary' => [],
-            'jw_observation_images' => [],
-            'jw_observation_files' => [],
-            'metrics' => [
-                'iss_speed' => $iss['payload']['velocity'] ?? null,
-                'iss_alt'   => $iss['payload']['altitude'] ?? null,
-                'neo_total' => 0,
-            ],
         ]);
     }
 

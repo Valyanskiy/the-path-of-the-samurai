@@ -14,8 +14,10 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
   <div class="container">
     <a class="navbar-brand" href="/dashboard">Dashboard</a>
-    <a class="nav-link" href="/iss" onclick="location.href='/dashboard'">ISS</a>
+    <a class="nav-link" href="/iss">ISS</a>
     <a class="nav-link" href="/osdr">OSDR</a>
+    <a class="nav-link" href="/astro">AstronomyAPI</a>
+    <a class="nav-link" href="/cms">CMS</a>
   </div>
 </nav>
 @yield('content')

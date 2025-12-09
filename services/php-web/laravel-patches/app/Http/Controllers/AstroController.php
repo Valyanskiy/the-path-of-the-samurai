@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 
 class AstroController extends Controller
 {
+    public function index()
+    {
+        return view('astro');
+    }
+
     public function events(Request $r)
     {
         // Строгая валидация параметров
