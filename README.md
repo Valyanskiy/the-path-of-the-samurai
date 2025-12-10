@@ -1,7 +1,5 @@
 # Внесённые изменения
 
----
-
 ## Диаграммы и блок-схемы
 
 ### Общая архитектура системы
@@ -15,8 +13,6 @@
 ### Структура Docker-сервисов
 
 ![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-110245.svg](.READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-110245.svg)
-
----
 
 ---
 
@@ -583,6 +579,8 @@ test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 | JSON parsing | Unit | num(), s_pick(), t_pick() |
 | HTTP endpoints | API | /health, /last, /iss/trend, /osdr/list, /space/:src/latest, /space/summary |
 
+---
+
 ## Скриншоты интерфейса
 ### Dashboard
 ![Space Dashboard.png](.READMEresources/Space%20Dashboard.png)
@@ -596,6 +594,8 @@ test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ![Space Dashboard 4.png](.READMEresources/Space%20Dashboard%204.png)
 ### CMS
 ![Space Dashboard 5.png](.READMEresources/Space%20Dashboard%205.png)
+
+---
 
 ## Github repo
 https://github.com/Valyanskiy/the-path-of-the-samurai.git
