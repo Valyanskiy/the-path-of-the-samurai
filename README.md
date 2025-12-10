@@ -1,5 +1,25 @@
 # Внесённые изменения
 
+---
+
+## Диаграммы и блок-схемы
+
+### Общая архитектура системы
+
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105602.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105602.svg)
+
+### Архитектура rust_iss
+
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105831.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105831.svg)
+
+### Структура Docker-сервисов
+
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-110245.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-110245.svg)
+
+---
+
+---
+
 ## 1. Инфраструктура
 
 ### Замена Pascal на Python (59b2319)
@@ -482,3 +502,83 @@ class ProxyRequestValidator {
 
 ### CMS запросы (413a511)
 - Исправлены запросы: `content` → `body`, `cms_pages` → `cms_blocks`
+
+---
+
+## 10. Тестирование
+
+### Запуск тестов rust_iss в Docker
+
+```bash
+# Запуск всех тестов
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+# Очистка после тестов
+docker compose -f docker-compose.test.yml down -v
+```
+
+### Структура тестов
+
+Тесты расположены в `services/rust-iss/src/tests.rs`:
+
+```
+tests/
+├── unit_tests           # Модульные тесты
+│   ├── test_haversine_km        # Формула расстояния
+│   ├── test_num_extraction      # Парсинг чисел из JSON
+│   ├── test_s_pick              # Выбор строки по ключам
+│   └── test_t_pick              # Парсинг дат из JSON
+│
+├── integration_tests    # Интеграционные тесты с БД
+│   ├── test_iss_repo_init_and_insert
+│   ├── test_iss_repo_get_last_n
+│   ├── test_osdr_repo_upsert
+│   ├── test_osdr_repo_count
+│   ├── test_cache_repo_insert_and_get
+│   ├── test_cache_repo_get_latest_json
+│   └── test_cache_repo_missing_source
+│
+└── api_tests            # Тесты HTTP эндпоинтов
+    ├── test_health_endpoint
+    ├── test_last_iss_endpoint
+    ├── test_iss_trend_endpoint
+    ├── test_osdr_list_endpoint
+    ├── test_space_latest_endpoint
+    └── test_space_summary_endpoint
+```
+
+### Результаты тестирования
+
+```
+running 17 tests
+test tests::api_tests::test_health_endpoint ... ok
+test tests::api_tests::test_iss_trend_endpoint ... ok
+test tests::api_tests::test_last_iss_endpoint ... ok
+test tests::api_tests::test_osdr_list_endpoint ... ok
+test tests::api_tests::test_space_latest_endpoint ... ok
+test tests::api_tests::test_space_summary_endpoint ... ok
+test tests::integration_tests::test_cache_repo_get_latest_json ... ok
+test tests::integration_tests::test_cache_repo_insert_and_get ... ok
+test tests::integration_tests::test_cache_repo_missing_source ... ok
+test tests::integration_tests::test_iss_repo_get_last_n ... ok
+test tests::integration_tests::test_iss_repo_init_and_insert ... ok
+test tests::integration_tests::test_osdr_repo_count ... ok
+test tests::integration_tests::test_osdr_repo_upsert ... ok
+test tests::unit_tests::test_haversine_km ... ok
+test tests::unit_tests::test_num_extraction ... ok
+test tests::unit_tests::test_s_pick ... ok
+test tests::unit_tests::test_t_pick ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
+
+### Покрытие тестами
+
+| Компонент | Тип теста | Покрытие |
+|-----------|-----------|----------|
+| IssRepo | Integration | init_table, insert, get_last, get_last_n |
+| OsdrRepo | Integration | init_table, upsert, list, count |
+| CacheRepo | Integration | init_table, insert, get_latest, get_latest_json |
+| Haversine | Unit | Расчёт расстояния между координатами |
+| JSON parsing | Unit | num(), s_pick(), t_pick() |
+| HTTP endpoints | API | /health, /last, /iss/trend, /osdr/list, /space/:src/latest, /space/summary |

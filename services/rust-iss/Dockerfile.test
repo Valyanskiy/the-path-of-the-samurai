@@ -1,0 +1,18 @@
+# Dockerfile для запуска тестов rust_iss
+FROM rust:slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config libssl-dev ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Копируем Cargo.toml для кэширования зависимостей
+COPY Cargo.toml ./
+RUN mkdir -p src && printf 'fn main() {}' > src/main.rs && cargo fetch
+
+# Копируем исходники
+COPY src ./src
+
+# Запуск тестов
+CMD ["cargo", "test", "--", "--test-threads=1", "--nocapture"]

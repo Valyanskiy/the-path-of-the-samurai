@@ -1,0 +1,36 @@
+# docker-compose.test.yml — запуск тестов rust_iss в Docker
+# Использование: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+
+networks:
+  test_backend:
+
+services:
+  test_db:
+    image: postgres:16
+    container_name: test_db
+    environment:
+      POSTGRES_DB: test_iss
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d test_iss"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - test_backend
+
+  rust_iss_tests:
+    build:
+      context: ./services/rust-iss
+      dockerfile: Dockerfile.test
+    container_name: rust_iss_tests
+    environment:
+      DATABASE_URL: postgres://test_user:test_pass@test_db:5432/test_iss
+      RUST_LOG: info
+      RUST_BACKTRACE: 1
+    depends_on:
+      test_db:
+        condition: service_healthy
+    networks:
+      - test_backend

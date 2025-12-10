@@ -14,6 +14,8 @@ mod handlers;
 mod repo;
 mod services;
 mod clients;
+#[cfg(test)]
+mod tests;
 
 use std::time::Duration;
 use axum::{routing::get, Json, Router};
