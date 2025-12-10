@@ -6,15 +6,15 @@
 
 ### Общая архитектура системы
 
-![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105602.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105602.svg)
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105602.svg](.READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105602.svg)
 
 ### Архитектура rust_iss
 
-![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105831.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105831.svg)
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-105831.svg](.READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-105831.svg)
 
 ### Структура Docker-сервисов
 
-![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-110245.svg](READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-110245.svg)
+![Mermaid Chart - Create complex, visual diagrams with text.-2025-12-10-110245.svg](.READMEresources/Mermaid%20Chart%20-%20Create%20complex%2C%20visual%20diagrams%20with%20text.-2025-12-10-110245.svg)
 
 ---
 
@@ -582,3 +582,20 @@ test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 | Haversine | Unit | Расчёт расстояния между координатами |
 | JSON parsing | Unit | num(), s_pick(), t_pick() |
 | HTTP endpoints | API | /health, /last, /iss/trend, /osdr/list, /space/:src/latest, /space/summary |
+
+## Скриншоты интерфейса
+### Dashboard
+![Space Dashboard.png](.READMEresources/Space%20Dashboard.png)
+### ISS
+![Space Dashboard 1.png](.READMEresources/Space%20Dashboard%201.png)
+### OSDR
+![Space Dashboard 2.png](.READMEresources/Space%20Dashboard%202.png)
+### AstronomyAPI
+![Space Dashboard 3.png](.READMEresources/Space%20Dashboard%203.png)
+### Telemetry
+![Space Dashboard 4.png](.READMEresources/Space%20Dashboard%204.png)
+### CMS
+![Space Dashboard 5.png](.READMEresources/Space%20Dashboard%205.png)
+
+## Github repo
+https://github.com/Valyanskiy/the-path-of-the-samurai.git
